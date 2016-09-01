@@ -1,79 +1,33 @@
-/**
- * Main App Controller for the Angular Material Starter App
- * @param UsersDataService
- * @param $mdSidenav
- * @constructor
- */
-function AppController(UsersDataService, $mdSidenav, $mdBottomSheet, $log) {
-  var self = this;
+export class AppController {
+  constructor(UsersDataService, $mdSidenav) {
+    this.$mdSidenav = $mdSidenav;
+    this.selected     = null;
+    this.users        = [ ];
 
-  self.selected     = null;
-  self.users        = [ ];
-  self.selectUser   = selectUser;
-  self.toggleList   = toggleUsersList;
-  self.share        = share;
+    // Load all registered users
 
-  // Load all registered users
-
-  UsersDataService
+    UsersDataService
         .loadAllUsers()
-        .then( function( users ) {
-          self.users    = [].concat(users);
-          self.selected = users[0];
+        .then( ( users ) => {
+          this.users    = [].concat(users);
+          this.selected = users[0];
         });
-
-  // *********************************
-  // Internal methods
-  // *********************************
+  }
 
   /**
    * Hide or Show the 'left' sideNav area
    */
-  function toggleUsersList() {
-    $mdSidenav('left').toggle();
+  toggleUsersList() {
+    this.$mdSidenav('left').toggle();
   }
 
   /**
    * Select the current avatars
    * @param menuId
    */
-  function selectUser ( user ) {
-    self.selected = angular.isNumber(user) ? $scope.users[user] : user;
-  }
-
-  /**
-   * Show the bottom sheet
-   */
-  function share() {
-    var user = this.selected;
-
-    $mdBottomSheet.show({
-      parent: angular.element(document. getElementById('content')),
-      templateUrl: 'src/users/view/ContactSheet.html',
-      controller: [ '$mdBottomSheet', UserSheetController],
-      controllerAs: "$ctrl",
-      bindToController : true
-    }).then((clickedItem) => {
-      $log.debug( clickedItem.name + ' clicked!');
-    });
-
-    /**
-     * Bottom Sheet controller for the Avatar Actions
-     */
-    function UserSheetController( $mdBottomSheet ) {
-      this.user = user;
-      this.items = [
-        { name: 'Phone'       , icon: 'phone'       , icon_url: 'assets/svg/phone.svg'},
-        { name: 'Twitter'     , icon: 'twitter'     , icon_url: 'assets/svg/twitter.svg'},
-        { name: 'Google+'     , icon: 'google_plus' , icon_url: 'assets/svg/google_plus.svg'},
-        { name: 'Hangout'     , icon: 'hangouts'    , icon_url: 'assets/svg/hangouts.svg'}
-      ];
-      this.performAction = (action) => {
-        $mdBottomSheet.hide(action);
-      };
-    }
+  selectUser ( user ) {
+    this.selected = angular.isNumber(user) ? this.users[user] : user;
   }
 }
 
-export default [ 'UsersDataService', '$mdSidenav', '$mdBottomSheet', '$log', AppController ];
-
+AppController.$inject = ['UsersDataService', '$mdSidenav'];
